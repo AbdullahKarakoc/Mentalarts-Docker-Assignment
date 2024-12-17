@@ -184,14 +184,16 @@ mentalarts-docker-assignment/
 
 -The system works with Turkish vowels such as ö ç i ş ğ ü İ Ö Ğ Ü Ö Ş Ç.
 
--http://192.168.1.125:8080/hello
--![Ekran görüntüsü 2024-12-17 215252](https://github.com/user-attachments/assets/ac002300-3003-4684-9258-987c7136ce4e)
+## API Endpoints
 
--http://192.168.1.125:8080/hello
--![Ekran görüntüsü 2024-12-17 215312](https://github.com/user-attachments/assets/c939461c-a733-4583-980a-d70656e1feaf
+1. **Endpoint**: `http://192.168.1.125:8080/hello`  
+   ![Ekran görüntüsü 2024-12-17 215252](https://github.com/user-attachments/assets/ac002300-3003-4684-9258-987c7136ce4e)
 
-http://192.168.1.125:8080/translate/çarşamba
--![Ekran görüntüsü 2024-12-17 215339](https://github.com/user-attachments/assets/5bc33b60-d1da-421d-a631-a65524ccaa43)
+2. **Endpoint**: `http://192.168.1.125:8080/hello`  
+   ![Ekran görüntüsü 2024-12-17 215312](https://github.com/user-attachments/assets/c939461c-a733-4583-980a-d70656e1feaf)
+
+3. **Endpoint**: `http://192.168.1.125:8080/translate/çarşamba`  
+   ![Ekran görüntüsü 2024-12-17 215339](https://github.com/user-attachments/assets/5bc33b60-d1da-421d-a631-a65524ccaa43)
 
 ## Results and Comparisons
 | **Implementation**       | **Image Size** |
