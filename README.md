@@ -48,10 +48,10 @@ Ensure the following tools are installed:
 
 ### Project Structure
 ```plaintext
-project-root/
-|-- main.go                     # Go web service code
+mentalarts-docker-assignment/
+|-- src/main.go                     # Go web service code
 |-- Dockerfile                  # Basic Dockerfile
-|-- Dockerfile.multi            # Optimized multi-stage Dockerfile
+|-- Dockerfile.multi-stage            # Optimized multi-stage Dockerfile
 |-- docker-compose.yml          # Docker Compose configuration
 |-- README.md                   # Documentation
 ```
@@ -61,7 +61,7 @@ project-root/
 1. **Clone the Repository**:
    ```bash
    git clone <repository-url>
-   cd project-root
+   cd mentalarts-docker-assignment-root
    ```
 
 2. **Build and Run with Docker Compose**:
@@ -72,7 +72,7 @@ project-root/
 3. **Verify the Service**:
    - Health Check: `http://localhost:8080/ping`
    - Greeting: `http://localhost:8080/greet`
-   - Translation: `http://localhost:8080/translate/:word`
+   - Translation: `http://localhost:8080/translate/elma`
 
 4. **Stop the Service**:
    ```bash
@@ -86,44 +86,86 @@ project-root/
 1. **Two Dockerfile Implementations**:
    - **Dockerfile (Normal Build):**
      ```dockerfile
-     FROM golang:latest
-     WORKDIR /app
-     COPY . .
-     RUN go build -o main .
-     CMD ["./main"]
+FROM golang:1.23.4
+WORKDIR /app
+COPY src/ .
+
+RUN go mod init example.com/translate && \
+    go mod tidy
+RUN go build -o main .
+
+CMD ["./main"]
      ```
 
    - **Dockerfile.multi (Multi-Stage Build):**
      ```dockerfile
      # Stage 1: Build the application
-     FROM golang:latest AS builder
-     WORKDIR /app
-     COPY . .
-     RUN go build -o main .
-     
-     # Stage 2: Run the application
-     FROM alpine:latest
-     WORKDIR /root/
-     COPY --from=builder /app/main .
-     CMD ["./main"]
+FROM golang:1.23.4 AS builder
+WORKDIR /app
+COPY ./src /app
+
+RUN go mod init example.com/translate && \
+    go mod tidy && \
+    go build -o main . && \
+    chmod +x main && \
+    ls -la /app
+
+FROM alpine:latest
+
+WORKDIR /root/
+COPY --from=builder /app/main .
+RUN ls -la /root/ && chmod +x /root/main
+
+EXPOSE 8080
+
+CMD ["/root/main"]
      ```
 
 2. **Docker Compose Configuration**:
-   ```yaml
-   services:
-     translate-service:
-       build:
-         context: .
-         dockerfile: Dockerfile.multi
-       image: multi-stage-translate-service
-       ports:
-         - "8080:8080"
-       restart: always
-       healthcheck:
-         test: ["CMD", "curl", "-f", "http://localhost:8080/ping"]
-         interval: 30s
-         timeout: 10s
-         retries: 5
+   ```yml
+version: '3.8'
+
+services:
+  translate-service:
+    build:
+      context: .
+    image: multi-stage-translate-service
+    ports:
+      - "8080:8080"
+    networks:
+      - app_network
+    environment:
+      - APP_ENV=production
+      - APP_PORT=8080
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - app_data:/app/data
+    depends_on:
+      - redis
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  redis:
+    image: redis:latest
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - app_network
+  volumes:
+    app_data:
+
+  networks:
+    app_network:
+       driver: bridge
    ```
 
 3. **Image Size Comparison**:
@@ -136,54 +178,20 @@ project-root/
      - `/greet`: Greeting message ✅
      - `/translate/:word`: Translation ✅
 
----
 
-## Evaluation Criteria
-1. **Correct Configuration of Dockerfiles and docker-compose.yml** (40 points)
-2. **Optimization Achieved Through Multi-Stage Builds** (30 points)
-3. **Proper Functioning of the Service** (20 points)
-4. **Documentation and Explanations** (10 points)
-
----
 
 ## Bonus Challenge
 
-### Bidirectional Translation with Language Detection
-The translation service has been enhanced to support **bidirectional translation** (Turkish ↔ English) using the same endpoint.
-
-### Endpoint: `/translate/:word`
-**Example Requests and Responses**:
-
-1. **Input**: `http://localhost:8080/translate/merhaba`
-   **Response**:
-   ```json
-   {
-     "translated": "hello",
-     "source_language": "tr"
-   }
-   ```
-
-2. **Input**: `http://localhost:8080/translate/hello`
-   **Response**:
-   ```json
-   {
-     "translated": "merhaba",
-     "source_language": "en"
-   }
-   ```
-
-### Features:
-- **Intelligent Language Detection**: Automatically determines the source language.
-- **Dynamic Translation**: Translates words in both directions.
-- **Edge Case Handling**: Ensures proper handling of unknown words.
-
----
+-The system works with Turkish vowels such as ö ç i ş ğ ü İ Ö Ğ Ü Ö Ş Ç.
 
 ## Results and Comparisons
 | **Implementation**       | **Image Size** |
 |--------------------------|---------------|
 | Normal Build             | 1.22 GB       |
 | Multi-Stage Build        | 31.9 MB       |
+
+![Ekran görüntüsü 2024-12-17 210646](https://github.com/user-attachments/assets/45fb8123-7e36-40fc-8036-71e2cf005b9d)
+
 
 ### Key Takeaways:
 - Multi-stage builds significantly reduce image size by eliminating unnecessary dependencies.
