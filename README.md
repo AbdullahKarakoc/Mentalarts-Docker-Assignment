@@ -184,6 +184,10 @@ mentalarts-docker-assignment/
 
 -The system works with Turkish vowels such as ö ç i ş ğ ü İ Ö Ğ Ü Ö Ş Ç.
 
+![Ekran görüntüsü 2024-12-17 215252](https://github.com/user-attachments/assets/ac002300-3003-4684-9258-987c7136ce4e)
+![Ekran görüntüsü 2024-12-17 215312](https://github.com/user-attachments/assets/c939461c-a733-4583-980a-d70656e1feaf)
+![Ekran görüntüsü 2024-12-17 215339](https://github.com/user-attachments/assets/5bc33b60-d1da-421d-a631-a65524ccaa43)
+
 ## Results and Comparisons
 | **Implementation**       | **Image Size** |
 |--------------------------|---------------|
