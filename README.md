@@ -190,7 +190,7 @@ services:
 | Normal Build             | 1.22 GB       |
 | Multi-Stage Build        | 31.9 MB       |
 
-![Ekran görüntüsü 2024-12-17 210646](https://github.com/user-attachments/assets/45fb8123-7e36-40fc-8036-71e2cf005b9d)
+![Ekran görüntüsü 2024-12-17 210646](https://github.com/user-attachments/assets/5f7c47f4-c70f-41d4-b10e-1d2125f7df6d)
 
 
 ### Key Takeaways:
