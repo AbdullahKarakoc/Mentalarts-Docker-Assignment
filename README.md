@@ -86,86 +86,86 @@ mentalarts-docker-assignment/
 1. **Two Dockerfile Implementations**:
    - **Dockerfile (Normal Build):**
      ```dockerfile
-FROM golang:1.23.4
-WORKDIR /app
-COPY src/ .
-
-RUN go mod init example.com/translate && \
-    go mod tidy
-RUN go build -o main .
-
-CMD ["./main"]
+      FROM golang:1.23.4
+      WORKDIR /app
+      COPY src/ .
+      
+      RUN go mod init example.com/translate && \
+          go mod tidy
+      RUN go build -o main .
+      
+      CMD ["./main"]
      ```
 
    - **Dockerfile.multi (Multi-Stage Build):**
      ```dockerfile
      # Stage 1: Build the application
-FROM golang:1.23.4 AS builder
-WORKDIR /app
-COPY ./src /app
-
-RUN go mod init example.com/translate && \
-    go mod tidy && \
-    go build -o main . && \
-    chmod +x main && \
-    ls -la /app
-
-FROM alpine:latest
-
-WORKDIR /root/
-COPY --from=builder /app/main .
-RUN ls -la /root/ && chmod +x /root/main
-
-EXPOSE 8080
-
-CMD ["/root/main"]
+      FROM golang:1.23.4 AS builder
+      WORKDIR /app
+      COPY ./src /app
+      
+      RUN go mod init example.com/translate && \
+          go mod tidy && \
+          go build -o main . && \
+          chmod +x main && \
+          ls -la /app
+      
+      FROM alpine:latest
+      
+      WORKDIR /root/
+      COPY --from=builder /app/main .
+      RUN ls -la /root/ && chmod +x /root/main
+      
+      EXPOSE 8080
+      
+      CMD ["/root/main"]
      ```
 
 2. **Docker Compose Configuration**:
    ```yml
-version: '3.8'
-
-services:
-  translate-service:
-    build:
-      context: .
-    image: multi-stage-translate-service
-    ports:
-      - "8080:8080"
-    networks:
-      - app_network
-    environment:
-      - APP_ENV=production
-      - APP_PORT=8080
-    restart: always
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-    volumes:
-      - app_data:/app/data
-    depends_on:
-      - redis
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-
-  redis:
-    image: redis:latest
-    restart: always
-    ports:
-      - "6379:6379"
-    networks:
-      - app_network
-  volumes:
-    app_data:
-
-  networks:
-    app_network:
-       driver: bridge
+   version: '3.8'
+   
+   services:
+     translate-service:
+       build:
+         context: .
+       image: multi-stage-translate-service
+       ports:
+         - "8080:8080"
+       networks:
+         - app_network
+       environment:
+         - APP_ENV=production
+         - APP_PORT=8080
+       restart: always
+       healthcheck:
+         test: ["CMD", "curl", "-f", "http://localhost:8080/ping"]
+         interval: 30s
+         timeout: 10s
+         retries: 5
+       volumes:
+         - app_data:/app/data
+       depends_on:
+         - redis
+       logging:
+         driver: "json-file"
+         options:
+           max-size: "10m"
+           max-file: "3"
+   
+     redis:
+       image: redis:latest
+       restart: always
+       ports:
+         - "6379:6379"
+       networks:
+         - app_network
+     volumes:
+       app_data:
+   
+     networks:
+       app_network:
+          driver: bridge
    ```
 
 3. **Image Size Comparison**:
@@ -190,7 +190,7 @@ services:
 | Normal Build             | 1.22 GB       |
 | Multi-Stage Build        | 31.9 MB       |
 
-![Ekran görüntüsü 2024-12-17 210646](https://github.com/user-attachments/assets/5f7c47f4-c70f-41d4-b10e-1d2125f7df6d)
+![Ekran görüntüsü 2024-12-17 210646](https://github.com/user-attachments/assets/a9dde113-0059-44dd-baec-f488712cff2c)
 
 
 ### Key Takeaways:
