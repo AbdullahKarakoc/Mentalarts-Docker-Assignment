@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  translate-service:
+    build:
+      context: .
+    image: multi-stage-translate-service
+    ports:
+      - "8080:8080"
+    networks:
+      - app_network
+    environment:
+      - APP_ENV=production
+      - APP_PORT=8080
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - app_data:/app/data
+    depends_on:
+      - redis
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  redis:
+    image: redis:latest
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - app_network
+
+volumes:
+  app_data:
+
+networks:
+  app_network:
+    driver: bridge
+

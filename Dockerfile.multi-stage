@@ -1,0 +1,30 @@
+# Derleme aşaması
+FROM golang:1.23.4 AS builder
+
+WORKDIR /app
+
+# Tüm src dosyalarını doğru dizine kopyala
+COPY ./src /app
+
+# Go modülünü başlat, bağımlılıkları yükle ve uygulamayı derle
+RUN go mod init example.com/translate && \
+    go mod tidy && \
+    go build -o main . && \
+    chmod +x main && \
+    ls -la /app
+
+# Minimal imaj aşaması
+FROM alpine:latest
+
+WORKDIR /root/
+
+# Derlenmiş uygulama dosyasını kopyala
+COPY --from=builder /app/main .
+
+# Kopyalama sonrası dosyayı kontrol et
+RUN ls -la /root/ && chmod +x /root/main
+
+EXPOSE 8080
+
+CMD ["/root/main"]
+
